@@ -20,10 +20,10 @@ class SharedMemoryQuerySet(QuerySet):
         where_children = self.query.where.children
 
         if len(where_children) == 1:
-            [(field, lookup_type, _, param)] = where_children
+            lookup = where_children[0]
 
-            if field.col in ('pk', pk_attr) and lookup_type == 'exact':
-                instance = self.model.get_cached_instance(param)
+            if lookup.lhs.target.name in ('pk', pk_attr) and lookup.lookup_name == 'exact':
+                instance = self.model.get_cached_instance(lookup.rhs)
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
